@@ -1,0 +1,7 @@
+{
+    "cmake.configureOnOpen": false,
+    "files.associations": {
+        "midi.h": "c",
+        "stdint.h": "c"
+    }
+}
