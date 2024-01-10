@@ -40,7 +40,7 @@ typedef struct str_track
 typedef struct str_midi
 {
     midihdr_t header;
-    track_t *track;
+    track_t track;
 } midi_t;
 #pragma pack(pop)
 
@@ -48,6 +48,8 @@ typedef struct str_mtrkevent
 {
     uint32_t delta;
     uint32_t event;
+    uint8_t *pos;
+    uint8_t *next;
 } mtrkevent_t;
 
 typedef struct str_measure
@@ -70,13 +72,17 @@ public:
     uint32_t trackdatasize();
     uint32_t measure_num();
     uint32_t eventnum();
-    measure_t* measure(uint32_t measure);
+    measure_t *measure(uint32_t measure);
 
 private:
     midi_t *midi;
     size_t pos;
-    uint32_t eventsize(uint8_t* data);
-
+    uint32_t eventsize(uint8_t *data, uint8_t **after);
+    uint8_t *eventdata(uint8_t *data, mtrkevent_t *ev);
+    void showevent(mtrkevent_t *ev);
+    void show_meta(mtrkevent_t *ev);
+    void show_sys_ex(mtrkevent_t *ev);
+    void show_mevent(mtrkevent_t *ev);
 };
 
 #endif

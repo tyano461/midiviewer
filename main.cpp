@@ -23,6 +23,7 @@ int main(int argc, char *argv[])
         , midi->delta()
         );
 
+        midi->eventnum();
     } else {
         d("not midi");
     }
