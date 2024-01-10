@@ -92,13 +92,26 @@ uint16_t CMidi::delta()
     return 0;
 }
 
-uint32_t CMidi::trackdatasize()
+uint32_t CMidi::trackdatasize(int index)
 {
+    int i;
+    track_t *trackpos;
     if (this->midi)
     {
-        return __bswap_32(this->midi->track.size);
+        trackpos = &midi->track;
+        for (i = 0; i < index; i++)
+        {
+            if (!isMtrk(trackpos)) i--;
+            trackpos = (track_t *)(trackpos->data + trackpos->size);
+        }
+        return __bswap_32(trackpos->size);
     }
     return 0;
+}
+
+bool CMidi::isMtrk(track_t* track) {
+    const char *SIG = "MTrk";
+    return track->signature == *(uint32_t*)SIG;
 }
 
 uint32_t CMidi::measure_num()
@@ -110,16 +123,22 @@ uint32_t CMidi::eventnum()
 {
     uint32_t pos = 0;
     uint8_t *p = midi->track.data;
-    uint32_t datasize = this->trackdatasize();
+    uint32_t datasize; 
     uint32_t size;
     mtrkevent_t ev;
+    uint8_t t;
+    uint8_t tnum = tracknum();
 
     ev.next = p;
-    while (p < (midi->track.data + datasize))
+    for (t = 0; t < tnum; t++)
     {
-        p = eventdata(p, &ev);
-        printf("%8d: ", pos++);
-        showevent(&ev);
+        datasize = this->trackdatasize(t);
+        while (p < (midi->track.data + datasize))
+        {
+            p = eventdata(p, &ev);
+            printf("%8d: ", pos++);
+            showevent(&ev);
+        }
     }
     return 0;
 }
@@ -252,7 +271,7 @@ void CMidi::show_sys_ex(mtrkevent_t *ev)
     delta = eventsize(tmp, &p);
     tmp = &p[1];
     size = eventsize(tmp, &p);
-    printf("%p %s [SysEx] --  %3d\n", ev->pos - (uint64_t)midi, b2s((const char *)ev->pos, 3), size);
+    printf("%p %s [SysEx] -- sz:%3d\n", ev->pos - (uint64_t)midi, b2s((const char *)ev->pos, 3), size);
 }
 void CMidi::show_mevent(mtrkevent_t *ev)
 {

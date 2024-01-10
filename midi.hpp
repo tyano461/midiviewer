@@ -69,7 +69,7 @@ public:
     uint16_t format();
     uint16_t tracknum();
     uint16_t delta();
-    uint32_t trackdatasize();
+    uint32_t trackdatasize(int i);
     uint32_t measure_num();
     uint32_t eventnum();
     measure_t *measure(uint32_t measure);
@@ -83,6 +83,7 @@ private:
     void show_meta(mtrkevent_t *ev);
     void show_sys_ex(mtrkevent_t *ev);
     void show_mevent(mtrkevent_t *ev);
+    bool isMtrk(track_t* track);
 };
 
 #endif
